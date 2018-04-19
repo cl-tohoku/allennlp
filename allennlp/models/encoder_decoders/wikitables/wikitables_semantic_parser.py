@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Tuple
 
 from overrides import overrides
-
 import torch
 from torch.autograd import Variable
 
@@ -24,7 +23,7 @@ from allennlp.semparse.type_declarations import type_declaration
 from allennlp.semparse.type_declarations.type_declaration import START_SYMBOL
 from allennlp.semparse.worlds import WikiTablesWorld
 from allennlp.semparse import ParsingError
-from allennlp.training.metrics import Average
+from allennlp.training.metrics import Average, WikiTablesAccuracy
 
 
 @Model.register("wikitables_parser")
@@ -73,6 +72,10 @@ class WikiTablesSemanticParser(Model):
     rule_namespace : ``str``, optional (default=rule_labels)
         The vocabulary namespace to use for production rules.  The default corresponds to the
         default used in the dataset reader, so you likely don't need to modify this.
+    table_directory : ``str``, optional (default=/wikitables/)
+        The directory to find tables when evaluating logical forms.  We rely on a call to SEMPRE to
+        evaluate logical forms, and SEMPRE needs to read the table from disk itself.  This tells
+        SEMPRE where to find the tables.
     """
     def __init__(self,
                  vocab: Vocabulary,
@@ -86,19 +89,22 @@ class WikiTablesSemanticParser(Model):
                  attention_function: SimilarityFunction,
                  dropout: float = 0.0,
                  num_linking_features: int = 8,
-                 rule_namespace: str = 'rule_labels') -> None:
+                 rule_namespace: str = 'rule_labels',
+                 table_directory: str = '/wikitables/') -> None:
         super(WikiTablesSemanticParser, self).__init__(vocab)
         self._question_embedder = question_embedder
         self._encoder = encoder
         self._entity_encoder = TimeDistributed(entity_encoder)
         self._beam_search = decoder_beam_search
         self._max_decoding_steps = max_decoding_steps
-        self._action_sequence_accuracy = Average()
         if dropout > 0:
             self._dropout = torch.nn.Dropout(p=dropout)
         else:
             self._dropout = lambda x: x
         self._rule_namespace = rule_namespace
+        self._denotation_accuracy = WikiTablesAccuracy(table_directory)
+        self._action_sequence_accuracy = Average()
+        self._has_logical_form = Average()
 
         self._action_padding_index = -1  # the padding value used by IndexField
         self._action_embedder = Embedding(num_embeddings=vocab.get_vocab_size(self._rule_namespace),
@@ -142,6 +148,7 @@ class WikiTablesSemanticParser(Model):
                 table: Dict[str, torch.LongTensor],
                 world: List[WikiTablesWorld],
                 actions: List[List[ProductionRuleArray]],
+                example_lisp_string: List[str] = None,
                 target_action_sequences: torch.LongTensor = None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         # pylint: disable=unused-argument
@@ -169,7 +176,11 @@ class WikiTablesSemanticParser(Model):
             ``ProductionRuleArray`` using a ``ProductionRuleField``.  We will embed all of these
             and use the embeddings to determine which action to take at each timestep in the
             decoder.
-        target_action_sequences : torch.Tensor, optional (default = None)
+        example_lisp_string : ``List[str]``, optional (default=None)
+            The example (lisp-formatted) string corresponding to the given input.  This comes
+            directly from the ``.examples`` file provided with the dataset.  We pass this to SEMPRE
+            when evaluating denotation accuracy; it is otherwise unused.
+        target_action_sequences : torch.Tensor, optional (default=None)
            A list of possibly valid action sequences, where each action is an index into the list
            of possible actions.  This tensor has shape ``(batch_size, num_action_sequences,
            sequence_length)``.
@@ -360,23 +371,30 @@ class WikiTablesSemanticParser(Model):
                 # infinite action loop).
                 if i in best_final_states:
                     best_action_indices = best_final_states[i][0].action_history[0]
-                    credit = 0
                     if target_action_sequences is not None:
                         # Use a Tensor, not a Variable, to avoid a memory leak.
                         targets = target_action_sequences[i].data
-                        credit = self._action_history_match(best_action_indices, targets)
-                    self._action_sequence_accuracy(credit)
+                        sequence_in_targets = 0
+                        sequence_in_targets = self._action_history_match(best_action_indices, targets)
+                        self._action_sequence_accuracy(sequence_in_targets)
                     action_strings = [action_mapping[(i, action_index)] for action_index in best_action_indices]
                     try:
+                        self._has_logical_form(1.0)
                         logical_form = world[i].get_logical_form(action_strings, add_var_function=False)
                     except ParsingError:
+                        self._has_logical_form(0.0)
                         logical_form = 'Error producing logical form'
+                    if example_lisp_string:
+                        self._denotation_accuracy(logical_form, example_lisp_string[i])
                     outputs['best_action_sequence'].append(action_strings)
                     outputs['logical_form'].append(logical_form)
                     outputs['debug_info'].append(best_final_states[i][0].debug_info[0])  # type: ignore
                     outputs['entities'].append(world[i].table_graph.entities)
                 else:
                     outputs['logical_form'].append('')
+                    self._has_logical_form(0.0)
+                    if example_lisp_string:
+                        self._denotation_accuracy(None, example_lisp_string[i])
             return outputs
 
     @staticmethod
@@ -569,8 +587,30 @@ class WikiTablesSemanticParser(Model):
 
     @overrides
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
+        """
+        We track three metrics here:
+
+            1. dpd_acc, which is the percentage of the time that our best output action sequence is
+            in the set of action sequences provided by DPD.  This is an easy-to-compute lower bound
+            on denotation accuracy for the set of examples where we actually have DPD output.  We
+            only score dpd_acc on that subset.
+
+            2. denotation_acc, which is the percentage of examples where we get the correct
+            denotation.  This is the typical "accuracy" metric, and it is what you should usually
+            report in an experimental result.  You need to be careful, though, that you're
+            computing this on the full data, and not just the subset that has DPD output (make sure
+            you pass "keep_if_no_dpd=True" to the dataset reader, which we do for validation data,
+            but not training data).
+
+            3. lf_percent, which is the percentage of time that decoding actually produces a
+            finished logical form.  We might not produce a valid logical form if the decoder gets
+            into a repetitive loop, or we're trying to produce a super long logical form and run
+            out of time steps, or something.
+        """
         return {
-                'parse_acc': self._action_sequence_accuracy.get_metric(reset)
+                'dpd_acc': self._action_sequence_accuracy.get_metric(reset),
+                'denotation_acc': self._denotation_accuracy.get_metric(reset),
+                'lf_percent': self._has_logical_form.get_metric(reset),
                 }
 
     @staticmethod
