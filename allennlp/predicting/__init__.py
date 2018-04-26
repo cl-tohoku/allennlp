@@ -14,4 +14,3 @@ from .decomposable_attention import DecomposableAttentionPredictor
 from .semantic_role_labeler import SemanticRoleLabelerPredictor
 from .sentence_tagger import SentenceTaggerPredictor
 from .simple_seq2seq import SimpleSeq2SeqPredictor
-from .nlvr_parser import NlvrParserPredictor

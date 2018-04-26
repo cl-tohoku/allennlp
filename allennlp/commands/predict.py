@@ -51,14 +51,14 @@ from allennlp.predicting import Predictor
 
 # a mapping from model `type` to the default Predictor for that type
 DEFAULT_PREDICTORS = {
-        'srl': 'semantic-role-labeling',
-        'decomposable_attention': 'textual-entailment',
-        'bidaf': 'machine-comprehension',
-        'bidaf-ensemble': 'machine-comprehension',
-        'simple_tagger': 'sentence-tagger',
-        'crf_tagger': 'sentence-tagger',
-        'coref': 'coreference-resolution',
-        'constituency_parser': 'constituency-parser',
+    'srl': 'semantic-role-labeling',
+    'decomposable_attention': 'textual-entailment',
+    'bidaf': 'machine-comprehension',
+    'bidaf-ensemble': 'machine-comprehension',
+    'simple_tagger': 'sentence-tagger',
+    'crf_tagger': 'sentence-tagger',
+    'coref': 'coreference-resolution',
+    'constituency_parser': 'constituency-parser',
 }
 
 
@@ -67,7 +67,7 @@ class Predict(Subcommand):
         # pylint: disable=protected-access
         description = '''Run the specified model against a JSON-lines input file.'''
         subparser = parser.add_parser(
-                name, description=description, help='Use a trained model to make predictions.')
+            name, description=description, help='Use a trained model to make predictions.')
 
         subparser.add_argument('archive_file', type=str, help='the archived model to make predictions with')
         subparser.add_argument('input_file', type=argparse.FileType('r'), help='path to input file')
@@ -98,6 +98,7 @@ class Predict(Subcommand):
 
         return subparser
 
+
 def _get_predictor(args: argparse.Namespace) -> Predictor:
     archive = load_archive(args.archive_file,
                            weights_file=args.weights_file,
@@ -115,13 +116,13 @@ def _get_predictor(args: argparse.Namespace) -> Predictor:
                                  f"Specify one with the --predictor flag.")
     return Predictor.from_archive(archive, DEFAULT_PREDICTORS[model_type])
 
+
 def _run(predictor: Predictor,
          input_file: IO,
          output_file: Optional[IO],
          batch_size: int,
          print_to_console: bool,
          cuda_device: int) -> None:
-
     def _run_predictor(batch_data):
         if len(batch_data) == 1:
             result = predictor.predict_json(batch_data[0], cuda_device)
