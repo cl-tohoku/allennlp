@@ -256,6 +256,9 @@ def train_model(params: Params,
     with open(os.path.join(serialization_dir, CONFIG_NAME), "w") as param_file:
         json.dump(serialization_params, param_file, indent=4)
 
+    ############
+    # Datasets #
+    ############
     all_datasets = datasets_from_params(params)
     datasets_for_vocab_creation = set(params.pop("datasets_for_vocab_creation", all_datasets))
 
@@ -263,6 +266,9 @@ def train_model(params: Params,
         if dataset not in all_datasets:
             raise ConfigurationError(f"invalid 'dataset_for_vocab_creation' {dataset}")
 
+    #########
+    # Vocab #
+    #########
     logger.info("Creating a vocabulary using %s data.", ", ".join(datasets_for_vocab_creation))
     vocab = Vocabulary.from_params(params.pop("vocabulary", {}),
                                    (instance for key, dataset in all_datasets.items()
@@ -270,14 +276,27 @@ def train_model(params: Params,
                                     if key in datasets_for_vocab_creation))
     vocab.save_to_files(os.path.join(serialization_dir, "vocabulary"))
 
+    #########
+    # Model #
+    #########
     model = Model.from_params(vocab, params.pop('model'))
+
+    ############
+    # Iterator #
+    ############
     iterator = DataIterator.from_params(params.pop("iterator"))
     iterator.index_with(vocab)
 
+    ########
+    # Data #
+    ########
     train_data = all_datasets['train']
     validation_data = all_datasets.get('validation')
     test_data = all_datasets.get('test')
 
+    ###########
+    # Trainer #
+    ###########
     trainer_params = params.pop("trainer")
     trainer = Trainer.from_params(model,
                                   serialization_dir,
@@ -289,6 +308,9 @@ def train_model(params: Params,
     evaluate_on_test = params.pop_bool("evaluate_on_test", False)
     params.assert_empty('base train command')
 
+    ############
+    # Training #
+    ############
     try:
         metrics = trainer.train()
     except KeyboardInterrupt:
@@ -299,11 +321,17 @@ def train_model(params: Params,
             archive_model(serialization_dir, files_to_archive=params.files_to_archive)
         raise
 
+    ##############
+    # Param Save #
+    ##############
     # Now tar up results
     archive_model(serialization_dir, files_to_archive=params.files_to_archive)
 
     if test_data and evaluate_on_test:
-        test_metrics = evaluate(model, test_data, iterator, cuda_device=trainer._cuda_devices[0])  # pylint: disable=protected-access
+        test_metrics = evaluate(model,
+                                test_data,
+                                iterator,
+                                cuda_device=trainer._cuda_devices[0])  # pylint: disable=protected-access
         for key, value in test_metrics.items():
             metrics["test_" + key] = value
 

@@ -3,6 +3,7 @@ import torch
 from allennlp.common import Params, Registrable
 from allennlp.data import Vocabulary
 
+
 class TokenEmbedder(torch.nn.Module, Registrable):
     """
     A ``TokenEmbedder`` is a ``Module`` that takes as input a tensor with integer ids that have

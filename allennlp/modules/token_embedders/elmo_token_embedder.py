@@ -56,7 +56,7 @@ class ElmoTokenEmbedder(TokenEmbedder):
     def get_output_dim(self):
         return self._elmo.get_output_dim()
 
-    def forward(self, inputs: torch.Tensor) -> torch.Tensor: # pylint: disable=arguments-differ
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:  # pylint: disable=arguments-differ
         """
         Parameters
         ----------

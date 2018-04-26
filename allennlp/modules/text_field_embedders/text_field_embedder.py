@@ -5,6 +5,7 @@ import torch
 from allennlp.common import Params, Registrable
 from allennlp.data import Vocabulary
 
+
 class TextFieldEmbedder(torch.nn.Module, Registrable):
     """
     A ``TextFieldEmbedder`` is a ``Module`` that takes as input the

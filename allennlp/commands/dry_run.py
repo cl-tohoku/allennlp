@@ -83,6 +83,7 @@ def dry_run_from_args(args: argparse.Namespace):
 
     dry_run_from_params(params, serialization_dir)
 
+
 def dry_run_from_params(params: Params, serialization_dir: str) -> None:
     prepare_environment(params)
 

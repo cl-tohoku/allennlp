@@ -366,6 +366,7 @@ def get_text_field_mask(text_field_tensors: Dict[str, torch.Tensor],
     else:
         raise ValueError("Expected a tensor with dimension 2 or 3, found {}".format(smallest_dim))
 
+
 def _last_dimension_applicator(function_to_apply: Callable[[torch.Tensor, Optional[torch.Tensor]], torch.Tensor],
                                tensor: torch.Tensor,
                                mask: Optional[torch.Tensor] = None):

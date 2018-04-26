@@ -5,6 +5,7 @@ from torch.nn import ParameterList, Parameter
 
 from allennlp.common.checks import ConfigurationError
 
+
 class ScalarMix(torch.nn.Module):
     """
     Computes a parameterised scalar mixture of N tensors, ``mixture = gamma * sum(s_k * tensor_k)``

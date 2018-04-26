@@ -21,7 +21,7 @@ from allennlp.training.metrics import SpanBasedF1Measure
 class SemanticRoleLabeler(Model):
     """
     This model performs semantic role labeling using BIO tags using Propbank semantic roles.
-    Specifically, it is an implmentation of `Deep Semantic Role Labeling - What works
+    Specifically, it is an implementation of `Deep Semantic Role Labeling - What works
     and what's next <https://homes.cs.washington.edu/~luheng/files/acl2017_hllz.pdf>`_ .
 
     This implementation is effectively a series of stacked interleaved LSTMs with highway
@@ -48,7 +48,8 @@ class SemanticRoleLabeler(Model):
     label_smoothing : ``float``, optional (default = 0.0)
         Whether or not to use label smoothing on the labels when computing cross entropy loss.
     """
-    def __init__(self, vocab: Vocabulary,
+    def __init__(self,
+                 vocab: Vocabulary,
                  text_field_embedder: TextFieldEmbedder,
                  encoder: Seq2SeqEncoder,
                  binary_feature_dim: int,
@@ -220,6 +221,7 @@ class SemanticRoleLabeler(Model):
                    initializer=initializer,
                    regularizer=regularizer,
                    label_smoothing=label_smoothing)
+
 
 def write_to_conll_eval_file(prediction_file: TextIO,
                              gold_file: TextIO,

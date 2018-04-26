@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 TypedSpan = Tuple[int, Tuple[int, int]]  # pylint: disable=invalid-name
 TypedStringSpan = Tuple[str, Tuple[int, int]]  # pylint: disable=invalid-name
 
+
 class OntonotesSentence:
     """
     A class representing the annotations available for a single CONLL formatted sentence.

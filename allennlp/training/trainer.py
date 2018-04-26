@@ -426,6 +426,9 @@ class Trainer:
         if self._histogram_interval is not None:
             histogram_parameters = set(self._model.get_parameters_for_histogram_tensorboard_logging())
 
+        ############
+        # Training #
+        ############
         logger.info("Training")
         for batch in train_generator_tqdm:
             batches_this_epoch += 1
@@ -437,6 +440,9 @@ class Trainer:
 
             self._optimizer.zero_grad()
 
+            ########
+            # loss #
+            ########
             loss = self._batch_loss(batch, for_training=True)
             loss.backward()
 
@@ -446,8 +452,14 @@ class Trainer:
 
             batch_grad_norm = self._rescale_gradients()
 
+            ########################
+            # Update Learning Rate #
+            ########################
             self._update_learning_rate(None, batch_num_total=batch_num_total)
 
+            #################
+            # Update Params #
+            #################
             if self._log_histograms_this_batch:
                 # get the magnitude of parameter updates for logging
                 # We need a copy of current parameters to compute magnitude of updates,
@@ -465,6 +477,9 @@ class Trainer:
             else:
                 self._optimizer.step()
 
+            ###########
+            # Metrics #
+            ###########
             # Update the description with the latest metrics
             metrics = self._get_metrics(train_loss, batches_this_epoch)
             description = self._description_from_metrics(metrics)
@@ -507,7 +522,7 @@ class Trainer:
 
         return False
 
-    def _parameter_and_gradient_statistics_to_tensorboard(self, # pylint: disable=invalid-name
+    def _parameter_and_gradient_statistics_to_tensorboard(self,  # pylint: disable=invalid-name
                                                           epoch: int,
                                                           batch_grad_norm: float) -> None:
         """

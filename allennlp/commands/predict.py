@@ -47,7 +47,7 @@ from typing import Optional, IO
 from allennlp.commands.subcommand import Subcommand
 from allennlp.common.checks import ConfigurationError
 from allennlp.models.archival import load_archive
-from allennlp.service.predictors import Predictor
+from allennlp.predicting import Predictor
 
 # a mapping from model `type` to the default Predictor for that type
 DEFAULT_PREDICTORS = {
