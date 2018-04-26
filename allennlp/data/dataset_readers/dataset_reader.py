@@ -8,6 +8,7 @@ from allennlp.common.registrable import Registrable
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
+
 class _LazyInstances(Iterable):
     """
     An ``Iterable`` that just wraps a thunk for generating instances and calls it for
@@ -22,6 +23,7 @@ class _LazyInstances(Iterable):
         if isinstance(instances, list):
             raise ConfigurationError("For a lazy dataset reader, _read() must return a generator")
         return instances
+
 
 class DatasetReader(Registrable):
     """

@@ -39,6 +39,7 @@ JsonDict = Dict[str, Any]  # pylint: disable=invalid-name
 START_SYMBOL = '@start@'
 END_SYMBOL = '@end@'
 
+
 def sanitize(x: Any) -> Any:  # pylint: disable=invalid-name,too-many-return-statements
     """
     Sanitize turns PyTorch and Numpy types into basic Python types so they
@@ -72,6 +73,7 @@ def sanitize(x: Any) -> Any:  # pylint: disable=invalid-name,too-many-return-sta
     else:
         raise ValueError("cannot sanitize {} of type {}".format(x, type(x)))
 
+
 def group_by_count(iterable: List[Any], count: int, default_value: Any) -> List[List[Any]]:
     """
     Takes a list and groups it into sublists of size ``count``, using ``default_value`` to pad the
@@ -86,7 +88,9 @@ def group_by_count(iterable: List[Any], count: int, default_value: Any) -> List[
     """
     return [list(l) for l in zip_longest(*[iter(iterable)] * count, fillvalue=default_value)]
 
+
 A = TypeVar('A')
+
 
 def lazy_groups_of(iterator: Iterator[A], group_size: int) -> Iterator[List[A]]:
     """
@@ -94,6 +98,7 @@ def lazy_groups_of(iterator: Iterator[A], group_size: int) -> Iterator[List[A]]:
     specified size. The last list may be smaller if there are instances left over.
     """
     return iter(lambda: list(islice(iterator, 0, group_size)), [])
+
 
 def pad_sequence_to_length(sequence: List,
                            desired_length: int,
@@ -197,6 +202,7 @@ def prepare_environment(params: Params):
 
     log_pytorch_version_info()
 
+
 def prepare_global_logging(serialization_dir: str, file_friendly_logging: bool) -> None:
     """
     This function configures 3 global logging attributes - streaming stdout and stderr
@@ -226,6 +232,7 @@ def prepare_global_logging(serialization_dir: str, file_friendly_logging: bool) 
     stdout_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
     logging.getLogger().addHandler(stdout_handler)
 
+
 LOADED_SPACY_MODELS: Dict[Tuple[str, bool, bool, bool], SpacyModelType] = {}
 
 
@@ -254,6 +261,7 @@ def get_spacy_model(spacy_model_name: str, pos_tags: bool, parse: bool, ner: boo
 
         LOADED_SPACY_MODELS[options] = spacy_model
     return LOADED_SPACY_MODELS[options]
+
 
 def import_submodules(package_name: str) -> None:
     """
@@ -296,6 +304,7 @@ def peak_memory_mb() -> float:
         # On Linux the result is in kilobytes.
         return peak / 1_000
 
+
 def gpu_memory_mb() -> Dict[int, int]:
     """
     Get the current GPU memory usage.
@@ -334,6 +343,7 @@ def ensure_list(iterable: Iterable[A]) -> List[A]:
         return iterable
     else:
         return list(iterable)
+
 
 def is_lazy(iterable: Iterable[A]) -> bool:
     """

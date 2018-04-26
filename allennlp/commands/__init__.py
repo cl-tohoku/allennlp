@@ -1,7 +1,6 @@
 from typing import Dict
 import argparse
 import logging
-import sys
 
 from allennlp.commands.elmo import Elmo
 from allennlp.commands.evaluate import Evaluate
@@ -12,7 +11,6 @@ from allennlp.commands.serve import Serve
 from allennlp.commands.dry_run import DryRun
 from allennlp.commands.subcommand import Subcommand
 from allennlp.commands.train import Train
-from allennlp.service.predictors import DemoModel
 from allennlp.common.util import import_submodules
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -62,6 +60,7 @@ def main(prog: str = None,
         # Import any additional modules needed (to register custom classes).
         for package_name in args.include_package:
             import_submodules(package_name)
+        # Run a command
         args.func(args)
     else:
         parser.print_help()

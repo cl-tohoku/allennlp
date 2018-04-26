@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 DEFAULT_WORD_TAG_DELIMITER = "###"
 
+
 @DatasetReader.register("sequence_tagging")
 class SequenceTaggingDatasetReader(DatasetReader):
     """

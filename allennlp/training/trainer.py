@@ -111,6 +111,7 @@ class TensorboardWriter:
         if self._validation_log is not None:
             self._validation_log.add_scalar(name, value, global_step)
 
+
 def time_to_str(timestamp: int) -> str:
     """
     Convert seconds past Epoch to human readable string.
@@ -121,12 +122,14 @@ def time_to_str(timestamp: int) -> str:
             datetimestamp.hour, datetimestamp.minute, datetimestamp.second
     )
 
+
 def str_to_time(time_str: str) -> datetime.datetime:
     """
     Convert human readable string to datetime.datetime.
     """
     pieces: Any = [int(piece) for piece in time_str.split('-')]
     return datetime.datetime(*pieces)
+
 
 class Trainer:
     def __init__(self,
@@ -344,6 +347,7 @@ class Trainer:
                                   if p.grad is not None]
             return sparse_clip_norm(parameters_to_clip, self._grad_norm)
         return None
+
     def _data_parallel(self, batch):
         """
         Do the forward pass using multiple GPUs.  This is a simplification
@@ -467,6 +471,7 @@ class Trainer:
 
             train_generator_tqdm.set_description(description, refresh=False)
 
+            """
             # Log parameter values to Tensorboard
             if batch_num_total % self._summary_interval == 0:
                 self._parameter_and_gradient_statistics_to_tensorboard(batch_num_total, batch_grad_norm)
@@ -476,6 +481,7 @@ class Trainer:
 
             if self._log_histograms_this_batch:
                 self._histograms_to_tensorboard(batch_num_total, histogram_parameters)
+            """
 
             # Save model if needed.
             if self._model_save_interval is not None and (

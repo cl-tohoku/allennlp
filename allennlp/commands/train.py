@@ -88,6 +88,7 @@ class Train(Subcommand):
 
         return subparser
 
+
 def train_model_from_args(args: argparse.Namespace):
     """
     Just converts from an ``argparse.Namespace`` object to string paths.
@@ -160,6 +161,7 @@ def datasets_from_params(params: Params) -> Dict[str, Iterable[Instance]]:
         datasets["test"] = test_data
 
     return datasets
+
 
 def create_serialization_dir(params: Params, serialization_dir: str, recover: bool) -> None:
     """

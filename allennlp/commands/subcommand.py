@@ -3,6 +3,7 @@ Base class for subcommands under ``allennlp.run``.
 """
 import argparse
 
+
 class Subcommand:
     """
     An abstract class representing subcommands for allennlp.run.
