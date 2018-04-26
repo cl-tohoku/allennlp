@@ -19,13 +19,14 @@
 
 ## 5. Rewrite the config file for running allennlp/models/simple_tagger.py
 	emacs tutorials/getting_started/simple_tagger.json
-	- rewrite:
-		"train_data_path": "brown/ca01",
-		"validation_data_path": "brown/ca02",
-	- rewrite if you want to use GPU:
-		"cuda_device": 0
+- rewrite:
+	"train_data_path": "brown/ca01",
+	"validation_data_path": "brown/ca02",
+- rewrite if you want to use GPU:
+	"cuda_device": 0
 
-## 6. Run: python -m allennlp.run train tutorials/getting_started/simple_tagger.json --serialization-dir /tmp/tutorials/getting_started
+## 6. Run the following command
+	python -m allennlp.run train tutorials/getting_started/simple_tagger.json --serialization-dir /tmp/tutorials/getting_started
 
-Please refer to https://github.com/allenai/allennlp/blob/v0.4.0/tutorials/getting_started/training_and_evaluating.md
+- Please refer to https://github.com/allenai/allennlp/blob/v0.4.0/tutorials/getting_started/training_and_evaluating.md
 
