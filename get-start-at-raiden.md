@@ -1,4 +1,4 @@
-# Getting started at Raiden
+# Getting started @ Raiden
 
 ## 1. Install Anaconda
 	bash Anaconda3-4.3.0-Linux-x86_64.sh
@@ -28,5 +28,6 @@
 ## 6. Run the following command
 	python -m allennlp.run train tutorials/getting_started/simple_tagger.json --serialization-dir /tmp/tutorials/getting_started
 
+- Tensorboad (at line 472 in allennlp/training/trainer.py) causes some errors when saving the training results.
 - Please refer to https://github.com/allenai/allennlp/blob/v0.4.0/tutorials/getting_started/training_and_evaluating.md
 
