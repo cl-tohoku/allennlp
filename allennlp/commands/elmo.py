@@ -103,7 +103,8 @@ class Elmo(Subcommand):
 def empty_embedding() -> numpy.ndarray:
     return numpy.zeros((3, 0, 1024))
 
-class ElmoEmbedder():
+
+class ElmoEmbedder:
     def __init__(self,
                  options_file: str = DEFAULT_OPTIONS_FILE,
                  weight_file: str = DEFAULT_WEIGHT_FILE,
@@ -299,6 +300,7 @@ class ElmoEmbedder():
                             data=output
                     )
         input_file.close()
+
 
 def elmo_command(args):
     elmo_embedder = ElmoEmbedder(args.options_file, args.weight_file, args.cuda_device)

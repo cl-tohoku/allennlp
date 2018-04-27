@@ -53,6 +53,7 @@ def filename_to_url(filename: str) -> Tuple[str, str]:
     url_bytes = base64.b64decode(filename_bytes)
     return url_bytes.decode('utf-8'), etag
 
+
 def cached_path(url_or_filename: str, cache_dir: str = None) -> str:
     """
     Given something that might be a URL (or might be a local path),
