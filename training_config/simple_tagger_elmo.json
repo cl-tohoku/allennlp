@@ -9,7 +9,10 @@
       },
       "token_characters": {
         "type": "characters"
-      }
+      },
+      "elmo": {
+         "type": "elmo_characters"
+       }
     }
   },
   "train_data_path": "sentences.small.train",
@@ -20,6 +23,13 @@
       "tokens": {
         "type": "embedding",
         "embedding_dim": 50
+      },
+      "elmo": {
+        "type": "elmo_token_embedder",
+        "options_file": "elmo.config.json",
+        "weight_file": "elmo.weight.hdf5",
+        "do_layer_norm": false,
+        "dropout": 0.5
       },
       "token_characters": {
         "type": "character_encoding",
@@ -39,7 +49,7 @@
     },
     "encoder": {
       "type": "lstm",
-      "input_size": 100,
+      "input_size": 1124,
       "hidden_size": 100,
       "num_layers": 2,
       "dropout": 0.5,

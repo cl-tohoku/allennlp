@@ -14,14 +14,14 @@
 	conda install pytorch torchvision cuda90 -c pytorch
 
 ## 4. Install a dataset
-	wget https://raw.githubusercontent.com/nltk/nltk_data/gh-pages/packages/corpora/brown.zip
-	unzip brown.zip
+    wget https://allennlp.s3.amazonaws.com/datasets/getting-started/sentences.small.train
+    wget https://allennlp.s3.amazonaws.com/datasets/getting-started/sentences.small.dev
 
 ## 5. Rewrite the config file for running allennlp/models/simple_tagger.py
 	emacs tutorials/getting_started/simple_tagger.json
 - rewrite:
-	"train_data_path": "brown/ca01",
-	"validation_data_path": "brown/ca02",
+	"train_data_path": "sentences.small.train",
+	"validation_data_path": "sentences.small.dev",
 - rewrite if you want to use GPU:
 	"cuda_device": 0
 
