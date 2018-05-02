@@ -6,6 +6,7 @@ from allennlp.data.vocabulary import Vocabulary
 
 TokenType = TypeVar("TokenType", int, List[int])  # pylint: disable=invalid-name
 
+
 class TokenIndexer(Generic[TokenType], Registrable):
     """
     A ``TokenIndexer`` determines how string tokens get represented as arrays of indices in a model.

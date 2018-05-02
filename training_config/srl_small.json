@@ -1,6 +1,6 @@
 {
   "dataset_reader":{"type":"srl"},
-  "train_data_path": "data/conll12_train_files",
+  "train_data_path": "data/conll12_dev_files",
   "validation_data_path": "data/conll12_dev_files",
   "model": {
     "type": "srl",
@@ -22,18 +22,18 @@
     ],
     "encoder": {
       "type": "alternating_lstm",
-      "input_size": 200,
-      "hidden_size": 300,
-      "num_layers": 8,
+      "input_size": 110,
+      "hidden_size": 30,
+      "num_layers": 2,
       "recurrent_dropout_probability": 0.1,
       "use_highway": true
     },
-    "binary_feature_dim": 100
+    "binary_feature_dim": 10
   },
   "iterator": {
     "type": "bucket",
     "sorting_keys": [["tokens", "num_tokens"]],
-    "batch_size" : 80
+    "batch_size" : 32
   },
 
   "trainer": {
@@ -41,7 +41,7 @@
     "grad_clipping": 1.0,
     "patience": 20,
     "validation_metric": "+f1-measure-overall",
-    "cuda_device": 0,
+    "cuda_device": -1,
     "optimizer": {
       "type": "adadelta",
       "rho": 0.95

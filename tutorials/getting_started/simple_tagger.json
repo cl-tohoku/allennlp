@@ -12,8 +12,8 @@
       }
     }
   },
-    "train_data_path": brown/ca-test,
-    "validation_data_path": brown/ca02,
+    "train_data_path": "brown/ca-test",
+    "validation_data_path": "brown/ca02",
 //  "train_data_path": "https://allennlp.s3.amazonaws.com/datasets/getting-started/sentences.small.train",
 //  "validation_data_path": "https://allennlp.s3.amazonaws.com/datasets/getting-started/sentences.small.dev",
   "model": {

@@ -1,15 +1,33 @@
 {
-  "dataset_reader":{"type":"srl"},
-  "train_data_path": "data/conll12_train_files",
-  "validation_data_path": "data/conll12_dev_files",
+   "dataset_reader": {
+     "type": "srl",
+     "token_indexers": {
+       "tokens": {
+         "type": "single_id",
+         "lowercase_tokens": true
+       },
+       "elmo": {
+         "type": "elmo_characters"
+       }
+     }
+   },
+  "train_data_path": "../data/conll12_train_files",
+  "validation_data_path": "../data/conll12_dev_files",
   "model": {
     "type": "srl",
     "text_field_embedder": {
       "tokens": {
         "type": "embedding",
         "embedding_dim": 100,
-        "pretrained_file": "https://s3-us-west-2.amazonaws.com/allennlp/datasets/glove/glove.6B.100d.txt.gz",
+        "pretrained_file": "../data/glove.6B.100d.txt.gz",
         "trainable": true
+      },
+      "elmo": {
+        "type": "elmo_token_embedder",
+        "options_file": "../data/elmo_2x4096_512_2048cnn_2xhighway_options.json",
+        "weight_file": "../data/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5",
+        "do_layer_norm": false,
+        "dropout": 0.5
       }
     },
     "initializer": [
@@ -22,7 +40,7 @@
     ],
     "encoder": {
       "type": "alternating_lstm",
-      "input_size": 200,
+      "input_size": 1224,
       "hidden_size": 300,
       "num_layers": 8,
       "recurrent_dropout_probability": 0.1,

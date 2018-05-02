@@ -15,6 +15,14 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s
 if __name__ == "__main__":
     from allennlp.commands.elmo import ElmoEmbedder
 
-    ee = ElmoEmbedder(sys.argv[1], sys.argv[2])
+    if len(sys.argv) < 3:
+        config_fn = "elmo.config.json"
+        weight_fn = "elmo.weight.hdf5"
+    else:
+        config_fn = sys.argv[1]
+        weight_fn = sys.argv[2]
+
+    ee = ElmoEmbedder(config_fn, weight_fn)
+
     embeddings = ee.embed_sentence("Bitcoin alone has a sixty percent share of global search .".split())
     print(embeddings.shape)
