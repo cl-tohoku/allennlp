@@ -110,7 +110,7 @@ def train_model_from_file(parameter_filename: str,
 
     Parameters
     ----------
-    param_path : ``str``
+    parameter_filename : ``str``
         A json parameter file specifying an AllenNLP experiment.
     serialization_dir : ``str``
         The directory in which to save results and logs. We just pass this along to

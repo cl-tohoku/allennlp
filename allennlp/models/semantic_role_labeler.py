@@ -139,6 +139,9 @@ class SemanticRoleLabeler(Model):
                                                       tags,
                                                       mask,
                                                       label_smoothing=self._label_smoothing)
+            ################
+            # Save metrics #
+            ################
             self.span_metric(class_probabilities, tags, mask)
             output_dict["loss"] = loss
 
@@ -173,6 +176,7 @@ class SemanticRoleLabeler(Model):
         return output_dict
 
     def get_metrics(self, reset: bool = False):
+        # Overall precision, recall, f1-measure
         metric_dict = self.span_metric.get_metric(reset=reset)
         # This can be a lot of metrics, as there are 3 per class.
         # we only really care about the overall metrics, so we filter for them here.

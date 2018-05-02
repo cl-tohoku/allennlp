@@ -27,7 +27,7 @@ from tensorboardX import SummaryWriter
 from allennlp.common import Params
 from allennlp.common.checks import ConfigurationError
 from allennlp.common.util import peak_memory_mb, gpu_memory_mb
-from allennlp.common.tqdm import Tqdm
+#from allennlp.common.tqdm import Tqdm
 from allennlp.data.instance import Instance
 from allennlp.data.iterators.data_iterator import DataIterator
 from allennlp.models.model import Model
@@ -392,6 +392,7 @@ class Trainer:
         the total loss divided by the ``num_batches`` so that
         the ``"loss"`` metric is "average loss per batch".
         """
+        # Overall precision, recall, f1-measure
         metrics = self._model.get_metrics(reset=reset)
         metrics["loss"] = float(total_loss / num_batches) if num_batches > 0 else 0.0
         return metrics
@@ -413,9 +414,7 @@ class Trainer:
         train_generator = self._iterator(self._train_data,
                                          num_epochs=1,
                                          cuda_device=self._iterator_device)
-        num_training_batches = self._iterator.get_num_batches(self._train_data)
-        train_generator_tqdm = Tqdm.tqdm(train_generator,
-                                         total=num_training_batches)
+
         self._last_log = time.time()
         last_save_time = time.time()
 
@@ -423,14 +422,11 @@ class Trainer:
         if self._batch_num_total is None:
             self._batch_num_total = 0
 
-        if self._histogram_interval is not None:
-            histogram_parameters = set(self._model.get_parameters_for_histogram_tensorboard_logging())
-
         ############
         # Training #
         ############
         logger.info("Training")
-        for batch in train_generator_tqdm:
+        for batch in train_generator:
             batches_this_epoch += 1
             self._batch_num_total += 1
             batch_num_total = self._batch_num_total
@@ -449,8 +445,6 @@ class Trainer:
             # Make sure Variable is on the cpu before converting to numpy.
             # .cpu() is a no-op if you aren't using GPUs.
             train_loss += loss.data.cpu().numpy()
-
-            batch_grad_norm = self._rescale_gradients()
 
             ########################
             # Update Learning Rate #
@@ -477,27 +471,18 @@ class Trainer:
             else:
                 self._optimizer.step()
 
-            ###########
-            # Metrics #
-            ###########
+            #################
+            # Print Metrics #
+            #################
             # Update the description with the latest metrics
-            metrics = self._get_metrics(train_loss, batches_this_epoch)
-            description = self._description_from_metrics(metrics)
+            if batches_this_epoch % 10 == 0:
+                metrics = self._get_metrics(train_loss, batches_this_epoch)
+                description = self._description_from_metrics(metrics)
+                print("At %d-th batch: %s" % (batches_this_epoch, description))
 
-            train_generator_tqdm.set_description(description, refresh=False)
-
-            """
-            # Log parameter values to Tensorboard
-            if batch_num_total % self._summary_interval == 0:
-                self._parameter_and_gradient_statistics_to_tensorboard(batch_num_total, batch_grad_norm)
-                self._tensorboard.add_train_scalar("loss/loss_train", metrics["loss"], batch_num_total)
-                self._metrics_to_tensorboard(batch_num_total,
-                                             {"epoch_metrics/" + k: v for k, v in metrics.items()})
-
-            if self._log_histograms_this_batch:
-                self._histograms_to_tensorboard(batch_num_total, histogram_parameters)
-            """
-
+            ##############
+            # Save model #
+            ##############
             # Save model if needed.
             if self._model_save_interval is not None and (
                     time.time() - last_save_time > self._model_save_interval
@@ -645,12 +630,10 @@ class Trainer:
                                        num_epochs=1,
                                        cuda_device=self._iterator_device,
                                        for_training=False)
-        num_validation_batches = self._iterator.get_num_batches(self._validation_data)
-        val_generator_tqdm = Tqdm.tqdm(val_generator,
-                                       total=num_validation_batches)
+
         batches_this_epoch = 0
         val_loss = 0
-        for batch in val_generator_tqdm:
+        for batch in val_generator:
 
             loss = self._batch_loss(batch, for_training=False)
             if loss is not None:
@@ -661,11 +644,6 @@ class Trainer:
                 # gets used for something else, we might need to change things around a bit.
                 batches_this_epoch += 1
                 val_loss += loss.data.cpu().numpy()
-
-            # Update the description with the latest metrics
-            val_metrics = self._get_metrics(val_loss, batches_this_epoch)
-            description = self._description_from_metrics(val_metrics)
-            val_generator_tqdm.set_description(description, refresh=False)
 
         return val_loss, batches_this_epoch
 
@@ -690,13 +668,18 @@ class Trainer:
         val_metrics: Dict[str, float] = {}
         epochs_trained = 0
         training_start_time = time.time()
+
         for epoch in range(epoch_counter, self._num_epochs):
             epoch_start_time = time.time()
+
+            # Overall precision, recall, f1-measure
             train_metrics = self._train_epoch(epoch)
 
             if self._validation_data is not None:
                 # We have a validation set, so compute all the metrics on it.
                 val_loss, num_batches = self._validation_loss()
+
+                # Overall precision, recall, f1-measure
                 val_metrics = self._get_metrics(val_loss, num_batches, reset=True)
 
                 # Check validation metric for early stopping
@@ -758,7 +741,7 @@ class Trainer:
 
     def _description_from_metrics(self, metrics: Dict[str, float]) -> str:
         # pylint: disable=no-self-use
-        return ', '.join(["%s: %.4f" % (name, value) for name, value in metrics.items()]) + " ||"
+        return ', '.join(["%s: %.4f" % (name, value) for name, value in metrics.items()])
 
     def _save_checkpoint(self,
                          epoch: Union[int, str],
