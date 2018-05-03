@@ -221,7 +221,14 @@ class ElmoEmbedder:
         if batch == [[]]:
             elmo_embeddings.append(empty_embedding())
         else:
+            ######################
+            # Compute embeddings #
+            ######################
             embeddings, mask = self.batch_to_embeddings(batch)
+
+            ######################################
+            # Extract embeddings for each sample #
+            ######################################
             for i in range(len(batch)):
                 length = int(mask[i, :].sum())
                 # Slicing the embedding :0 throws an exception so we need to special case for empty sentences.
