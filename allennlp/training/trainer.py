@@ -27,7 +27,6 @@ from tensorboardX import SummaryWriter
 from allennlp.common import Params
 from allennlp.common.checks import ConfigurationError
 from allennlp.common.util import peak_memory_mb, gpu_memory_mb
-#from allennlp.common.tqdm import Tqdm
 from allennlp.data.instance import Instance
 from allennlp.data.iterators.data_iterator import DataIterator
 from allennlp.models.model import Model
@@ -635,7 +634,11 @@ class Trainer:
         val_loss = 0
         for batch in val_generator:
 
+            ################
+            # Compute Loss #
+            ################
             loss = self._batch_loss(batch, for_training=False)
+
             if loss is not None:
                 # You shouldn't necessarily have to compute a loss for validation, so we allow for
                 # `loss` to be None.  We need to be careful, though - `batches_this_epoch` is
@@ -672,14 +675,22 @@ class Trainer:
         for epoch in range(epoch_counter, self._num_epochs):
             epoch_start_time = time.time()
 
+            #################
+            # Train a Model #
+            #################
             # Overall precision, recall, f1-measure
             train_metrics = self._train_epoch(epoch)
 
+            ####################
+            # Validate a Model #
+            ####################
             if self._validation_data is not None:
                 # We have a validation set, so compute all the metrics on it.
+                # val_loss: float, num_batches: int
                 val_loss, num_batches = self._validation_loss()
 
                 # Overall precision, recall, f1-measure
+                # Dict[str, float]
                 val_metrics = self._get_metrics(val_loss, num_batches, reset=True)
 
                 # Check validation metric for early stopping
@@ -700,6 +711,9 @@ class Trainer:
                 val_metrics = {}
                 this_epoch_val_metric = None
 
+            #################
+            # Save & Output #
+            #################
             self._save_checkpoint(epoch, validation_metric_per_epoch, is_best=is_best_so_far)
             self._metrics_to_tensorboard(epoch, train_metrics, val_metrics=val_metrics)
             self._metrics_to_console(train_metrics, val_metrics)
@@ -717,6 +731,9 @@ class Trainer:
 
             epochs_trained += 1
 
+        ###########
+        # Summary #
+        ###########
         training_elapsed_time = time.time() - training_start_time
         metrics = {
                 "training_duration": time.strftime("%H:%M:%S", time.gmtime(training_elapsed_time)),

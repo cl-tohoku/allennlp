@@ -199,7 +199,7 @@ class Params(MutableMapping):
         def log_recursively(parameters, history):
             for key, value in parameters.items():
                 if isinstance(value, dict):
-                    new_local_history = history + key  + "."
+                    new_local_history = history + key + "."
                     log_recursively(value, new_local_history)
                 else:
                     logger.info(history + key + " = " + str(value))
@@ -217,6 +217,7 @@ class Params(MutableMapping):
         Nested structure is collapsed with periods.
         """
         flat_params = {}
+
         def recurse(parameters, path):
             for key, value in parameters.items():
                 newpath = path + [key]

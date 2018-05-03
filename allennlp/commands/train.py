@@ -126,7 +126,7 @@ def train_model_from_file(parameter_filename: str,
         of a run.  For continuing training a model on new data, see the ``fine-tune`` command.
     """
     # Load the experiment config from a file and pass it to ``train_model``.
-    params = Params.from_file(parameter_filename, overrides)
+    params = Params.from_file(params_file=parameter_filename, params_overrides=overrides)
     return train_model(params, serialization_dir, file_friendly_logging, recover)
 
 
@@ -252,6 +252,9 @@ def train_model(params: Params,
     create_serialization_dir(params, serialization_dir, recover)
     prepare_global_logging(serialization_dir, file_friendly_logging)
 
+    ###############
+    # Save Params #
+    ###############
     serialization_params = deepcopy(params).as_dict(quiet=True)
     with open(os.path.join(serialization_dir, CONFIG_NAME), "w") as param_file:
         json.dump(serialization_params, param_file, indent=4)
@@ -312,6 +315,7 @@ def train_model(params: Params,
     # Training #
     ############
     try:
+        # Dict[str, Any]
         metrics = trainer.train()
     except KeyboardInterrupt:
         # if we have completed an epoch, try to create a model archive.
@@ -321,12 +325,15 @@ def train_model(params: Params,
             archive_model(serialization_dir, files_to_archive=params.files_to_archive)
         raise
 
-    ##############
-    # Param Save #
-    ##############
-    # Now tar up results
+    ###############
+    # Save Params #
+    ###############
+    # params.files_to_archive:  Dict[str, str]
     archive_model(serialization_dir, files_to_archive=params.files_to_archive)
 
+    #########################
+    # Evaluate on Test Data #
+    #########################
     if test_data and evaluate_on_test:
         test_metrics = evaluate(model,
                                 test_data,
@@ -334,11 +341,13 @@ def train_model(params: Params,
                                 cuda_device=trainer._cuda_devices[0])  # pylint: disable=protected-access
         for key, value in test_metrics.items():
             metrics["test_" + key] = value
-
     elif test_data:
         logger.info("To evaluate on the test set after training, pass the "
                     "'evaluate_on_test' flag, or use the 'allennlp evaluate' command.")
 
+    ################
+    # Save Metrics #
+    ################
     metrics_json = json.dumps(metrics, indent=2)
     with open(os.path.join(serialization_dir, "metrics.json"), "w") as metrics_file:
         metrics_file.write(metrics_json)

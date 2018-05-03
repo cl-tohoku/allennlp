@@ -44,7 +44,7 @@ class ElmoTokenEmbedder(TokenEmbedder):
 
         self._elmo = Elmo(options_file,
                           weight_file,
-                          1,
+                          num_output_representations=1,
                           do_layer_norm=do_layer_norm,
                           dropout=dropout,
                           requires_grad=requires_grad)

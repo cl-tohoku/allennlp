@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 CACHE_ROOT = os.getenv('ALLENNLP_CACHE_ROOT', os.path.expanduser(os.path.join('~', '.allennlp')))
 DATASET_CACHE = os.path.join(CACHE_ROOT, "datasets")
 
+
 def url_to_filename(url: str, etag: str = None) -> str:
     """
     Converts a url into a filename in a reversible way.
@@ -36,6 +37,7 @@ def url_to_filename(url: str, etag: str = None) -> str:
         return f"{decoded}.{etag}"
     else:
         return decoded
+
 
 def filename_to_url(filename: str) -> Tuple[str, str]:
     """
@@ -116,7 +118,7 @@ def get_from_cache(url: str, cache_dir: str = None) -> str:
         progress = Tqdm.tqdm(unit="B", total=total)
         with open(temp_filename, 'wb') as temp_file:
             for chunk in req.iter_content(chunk_size=1024):
-                if chunk: # filter out keep-alive new chunks
+                if chunk:  # filter out keep-alive new chunks
                     progress.update(len(chunk))
                     temp_file.write(chunk)
 

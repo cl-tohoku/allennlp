@@ -11,6 +11,7 @@ from allennlp.common.registrable import Registrable
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
+
 class DataIterator(Registrable):
     """
     An abstract ``DataIterator`` class. ``DataIterators`` must implement __call__, which yields

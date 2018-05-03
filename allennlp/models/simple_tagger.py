@@ -37,7 +37,8 @@ class SimpleTagger(Model):
         If provided, will be used to calculate the regularization penalty during training.
     """
 
-    def __init__(self, vocab: Vocabulary,
+    def __init__(self,
+                 vocab: Vocabulary,
                  text_field_embedder: TextFieldEmbedder,
                  encoder: Seq2SeqEncoder,
                  initializer: InitializerApplicator = InitializerApplicator(),
@@ -158,8 +159,7 @@ class SimpleTagger(Model):
 @Model.register("simpler_tagger")
 class SimplerTagger(Model):
     """
-    This ``SimpleTagger`` simply encodes a sequence of text with a stacked ``Seq2SeqEncoder``, then
-    predicts a tag for each token in the sequence.
+    This ``SimpleTagger`` is a linear classifier that predicts a tag for each token in the sequence.
 
     Parameters
     ----------
@@ -173,7 +173,8 @@ class SimplerTagger(Model):
         If provided, will be used to calculate the regularization penalty during training.
     """
 
-    def __init__(self, vocab: Vocabulary,
+    def __init__(self,
+                 vocab: Vocabulary,
                  text_field_embedder: TextFieldEmbedder,
                  initializer: InitializerApplicator = InitializerApplicator(),
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
@@ -277,7 +278,6 @@ class SimplerTagger(Model):
 
         initializer = InitializerApplicator.from_params(params.pop('initializer', []))
         regularizer = RegularizerApplicator.from_params(params.pop('regularizer', []))
-#        params.assert_empty(cls.__name__)
         return cls(vocab=vocab,
                    text_field_embedder=text_field_embedder,
                    initializer=initializer,

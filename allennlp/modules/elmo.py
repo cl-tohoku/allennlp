@@ -81,8 +81,13 @@ class Elmo(torch.nn.Module):
         else:
             self._elmo_lstm = _ElmoBiLm(options_file, weight_file, requires_grad=requires_grad)
         self._dropout = Dropout(p=dropout)
+
+        ##################################################
+        # Eq.1 in the paper: gamma * sum(s_k * tensor_k) #
+        ##################################################
         self._scalar_mixes: Any = []
         for k in range(num_output_representations):
+            # gamma * sum(s_k * tensor_k)
             scalar_mix = ScalarMix(self._elmo_lstm.num_layers, do_layer_norm=do_layer_norm)
             self.add_module('scalar_mix_{}'.format(k), scalar_mix)
             self._scalar_mixes.append(scalar_mix)
@@ -125,11 +130,15 @@ class Elmo(torch.nn.Module):
         # compute the elmo representations
         representations = []
         for i in range(len(self._scalar_mixes)):
+            ##################################################
+            # Eq.1 in the paper: gamma * sum(s_k * tensor_k) #
+            ##################################################
             scalar_mix = getattr(self, 'scalar_mix_{}'.format(i))
             representation_with_bos_eos = scalar_mix(layer_activations, mask_with_bos_eos)
             representation_without_bos_eos, mask_without_bos_eos = remove_sentence_boundaries(
                     representation_with_bos_eos, mask_with_bos_eos
             )
+            # Dropout
             representations.append(self._dropout(representation_without_bos_eos))
 
         # reshape if necessary

@@ -32,6 +32,7 @@ CONFIG_NAME = "config.json"
 _WEIGHTS_NAME = "weights.th"
 _FTA_NAME = "files_to_archive.json"
 
+
 def archive_model(serialization_dir: str,
                   weights: str = _DEFAULT_WEIGHTS,
                   files_to_archive: Dict[str, str] = None) -> None:
@@ -66,7 +67,6 @@ def archive_model(serialization_dir: str,
         with open(fta_filename, 'w') as fta_file:
             fta_file.write(json.dumps(files_to_archive))
 
-
     archive_file = os.path.join(serialization_dir, "model.tar.gz")
     logger.info("archiving weights and vocabulary to %s", archive_file)
     with tarfile.open(archive_file, 'w:gz') as archive:
@@ -82,6 +82,7 @@ def archive_model(serialization_dir: str,
             # And add each requested file to the archive.
             for key, filename in files_to_archive.items():
                 archive.add(filename, arcname=f"fta/{key}")
+
 
 def load_archive(archive_file: str,
                  cuda_device: int = -1,
