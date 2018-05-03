@@ -15,7 +15,7 @@ T = TypeVar('T')
 class Registrable:
     """
     Any class that inherits from ``Registrable`` gains access to a named registry for its
-    subclasses. To register them, just decorate them with the classmethod
+    subclasses. To register them, just decorate them with the class method
     ``@BaseClass.register(name)``.
 
     After which you can call ``BaseClass.list_available()`` to get the keys for the
@@ -40,6 +40,7 @@ class Registrable:
     @classmethod
     def register(cls: Type[T], name: str):
         registry = Registrable._registry[cls]
+
         def add_subclass_to_registry(subclass: Type[T]):
             # Add to registry, raise an error if key has already been used.
             if name in registry:
@@ -48,6 +49,7 @@ class Registrable:
                 raise ConfigurationError(message)
             registry[name] = subclass
             return subclass
+
         return add_subclass_to_registry
 
     @classmethod
