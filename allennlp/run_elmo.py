@@ -16,8 +16,8 @@ if __name__ == "__main__":
     from allennlp.commands.elmo import ElmoEmbedder
 
     if len(sys.argv) < 3:
-        config_fn = "elmo.config.json"
-        weight_fn = "elmo.weight.hdf5"
+        config_fn = "model_files/elmo.config.json"
+        weight_fn = "model_files/elmo.weight.hdf5"
     else:
         config_fn = sys.argv[1]
         weight_fn = sys.argv[2]
