@@ -7,6 +7,7 @@ training parameters and then use :mod:`~allennlp.commands.train`
 rather than instantiating a ``Trainer`` yourself.
 """
 
+import sys
 import logging
 import os
 import shutil
@@ -409,7 +410,6 @@ class Trainer:
         # Set the model to "train" mode.
         self._model.train()
 
-        # Get tqdm for the training batches
         train_generator = self._iterator(self._train_data,
                                          num_epochs=1,
                                          cuda_device=self._iterator_device)
@@ -477,7 +477,8 @@ class Trainer:
             if batches_this_epoch % 10 == 0:
                 metrics = self._get_metrics(train_loss, batches_this_epoch)
                 description = self._description_from_metrics(metrics)
-                print("At %d-th batch: %s" % (batches_this_epoch, description))
+                sys.stdout.write("At %d-th batch: %s\n" % (batches_this_epoch, description))
+                sys.stdout.flush()
 
             ##############
             # Save model #
