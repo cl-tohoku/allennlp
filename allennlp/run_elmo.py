@@ -2,6 +2,9 @@
 import logging
 import os
 import sys
+import locale
+
+locale.setlocale(locale.LC_CTYPE, 'C.UTF-8')
 
 if os.environ.get("ALLENNLP_DEBUG"):
     LEVEL = logging.DEBUG
