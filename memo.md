@@ -32,3 +32,8 @@ python -m allennlp.run elmo data/sentences.txt elmo_layers.hdf5 --all
 ```
 python allennlp/view_hdf.py elmo_layers.hdf5
 ```
+
+-- Extract ELMo embeddings:
+```
+python -m allennlp.run_elmo --in_fn data/sentences.txt --out_fn elmo.hdf5
+```
