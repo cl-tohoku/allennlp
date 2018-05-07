@@ -1,7 +1,8 @@
 # Getting started @ Raiden
 
 ## 1. Install Anaconda
-	bash Anaconda3-4.3.0-Linux-x86_64.sh
+    wget https://repo.anaconda.com/archive/Anaconda3-5.1.0-Linux-x86_64.sh
+	bash Anaconda3-5.1.0-Linux-x86_64.sh
 	export PATH=~/anaconda3/bin:$PATH
 	conda create -n allennlp python=3.6
 	source activate allennlp
