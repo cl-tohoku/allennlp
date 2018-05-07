@@ -7,7 +7,7 @@
 	source activate allennlp
 
 ## 2. Clone allennlp
-	git clone https://github.com/allenai/allennlp.git
+	git clone https://github.com/cl-tohoku/allennlp.git
 	INSTALL_TEST_REQUIREMENTS="true" ./scripts/install_requirements.sh
 
 ## 3. Install cuda and pytorch

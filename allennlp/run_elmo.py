@@ -45,5 +45,6 @@ if __name__ == "__main__":
             if sent_id % 100 == 0:
                 sys.stdout.write("At Sent %d\n" % sent_id)
                 sys.stdout.flush()
+    sys.stdout.write("Prediction FINISHED\n")
     outfh.flush()
     outfh.close()
