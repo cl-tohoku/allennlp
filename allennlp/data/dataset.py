@@ -16,11 +16,13 @@ from allennlp.data.vocabulary import Vocabulary
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
+
 class Batch(Iterable):
     """
     A batch of Instances. In addition to containing the instances themselves,
     it contains helper functions for converting the data into tensors.
     """
+
     def __init__(self, instances: Iterable[Instance]) -> None:
         """
         A Batch just takes an iterable of instances in its constructor and hangs onto them
