@@ -12,6 +12,7 @@
 
 ## 3. Clone allennlp
 	git clone https://github.com/cl-tohoku/allennlp.git
+	cd allennlp
 	INSTALL_TEST_REQUIREMENTS="true" ./scripts/install_requirements.sh
 
 ## 4. Download config and params for ELMo
