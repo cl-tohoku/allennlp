@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 import locale
-import codecs
 
 if os.environ.get("ALLENNLP_DEBUG"):
     LEVEL = logging.DEBUG
@@ -42,26 +41,24 @@ if __name__ == "__main__":
     sys.stdout.write("Prediction START\n")
     sys.stdout.flush()
     outfh = h5py.File(argv.out_fn, 'w')
-    saved_lines = []
     with open(argv.in_fn, 'r') as f:
         sent_id = 0
         sys.stdout.write("Sent: ")
         sys.stdout.flush()
 
         for line in f:
-            sent_id += 1
-            if sent_id % 100 == 0:
-                sys.stdout.write("%d " % sent_id)
-                sys.stdout.flush()
-
             line = line.rstrip()
 
-            if line in saved_lines:
+            if line in outfh.keys():
                 continue
 
             embeddings = ee.embed_sentence(line.split())
             outfh.create_dataset(name=line, data=embeddings)
-            saved_lines.append(line)
+
+            sent_id += 1
+            if sent_id % 100 == 0:
+                sys.stdout.write("%d " % sent_id)
+                sys.stdout.flush()
 
     sys.stdout.write("\nPrediction FINISHED\n")
     outfh.flush()
