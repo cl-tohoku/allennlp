@@ -3,8 +3,7 @@ import logging
 import os
 import sys
 import locale
-
-locale.setlocale(locale.LC_CTYPE, 'C.UTF-8')
+import codecs
 
 if os.environ.get("ALLENNLP_DEBUG"):
     LEVEL = logging.DEBUG
@@ -22,29 +21,48 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='ELMo Embedder.')
 
-    parser.add_argument('--config_fn', default='model_files/elmo.config.json', help='path to config file')
+    parser.add_argument('--option_fn', default='model_files/elmo.config.json', help='path to option file')
     parser.add_argument('--weight_fn', default='model_files/elmo.weight.hdf5', help='path to weight file')
+    parser.add_argument('--cuda_device', type=int, default=-1, help='cuda_device')
     parser.add_argument('--in_fn', default=None, help='path to input file')
     parser.add_argument('--out_fn', default='elmo_embs.hdf5', help='path to output file')
 
     argv = parser.parse_args()
 
+    if argv.cuda_device > -1:
+        locale.setlocale(locale.LC_CTYPE, 'C.UTF-8')
+
     sys.stdout.write("Build ELMo Embedder\n")
+    sys.stdout.write("Use CUDA: %d\n" % argv.cuda_device)
     sys.stdout.flush()
-    ee = ElmoEmbedder(argv.config_fn, argv.weight_fn)
+    ee = ElmoEmbedder(options_file=argv.option_fn,
+                      weight_file=argv.weight_fn,
+                      cuda_device=argv.cuda_device)
 
     sys.stdout.write("Prediction START\n")
     sys.stdout.flush()
     outfh = h5py.File(argv.out_fn, 'w')
+    saved_lines = []
     with open(argv.in_fn, 'r') as f:
         sent_id = 0
+        sys.stdout.write("Sent: ")
+        sys.stdout.flush()
+
         for line in f:
-            embeddings = ee.embed_sentence(line.rstrip().split())
-            outfh.create_dataset(str(sent_id), data=embeddings)
             sent_id += 1
             if sent_id % 100 == 0:
-                sys.stdout.write("At Sent %d\n" % sent_id)
+                sys.stdout.write("%d " % sent_id)
                 sys.stdout.flush()
-    sys.stdout.write("Prediction FINISHED\n")
+
+            line = line.rstrip()
+
+            if line in saved_lines:
+                continue
+
+            embeddings = ee.embed_sentence(line.split())
+            outfh.create_dataset(name=line, data=embeddings)
+            saved_lines.append(line)
+
+    sys.stdout.write("\nPrediction FINISHED\n")
     outfh.flush()
     outfh.close()

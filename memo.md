@@ -18,22 +18,17 @@ python -m allennlp.run evaluate --evaluation-data-file data/conll12_test_files s
 python -m allennlp.run train training_config/simple_tagger_elmo.json --serialization-dir /tmp/tutorials/getting_started
 ```
 
-- Train simpler tagger with ELMo
-```
-python -m allennlp.run train training_config/simpler_tagger_elmo.json --serialization-dir /tmp/tutorials/getting_started
-```
-
 - Predict ELMo embeddings
 ```
-python -m allennlp.run elmo data/sentences.txt elmo_layers.hdf5 --all
+python -m allennlp.run elmo sent.txt elmo_layers.hdf5 --all
+```
+
+-- Predict and Save ELMo embeddings:
+```
+python -m allennlp.run_elmo --in_fn sent.txt --out_fn sent.hdf5 --option_fn options.json --weight_fn weights.hdf5
 ```
 
 - See the hdf5 file of the ELMo embeddings
 ```
 python allennlp/view_hdf.py elmo_layers.hdf5
-```
-
--- Extract ELMo embeddings:
-```
-python -m allennlp.run_elmo --in_fn data/sentences.txt --out_fn elmo.hdf5
 ```
