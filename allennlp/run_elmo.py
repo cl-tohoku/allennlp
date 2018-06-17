@@ -25,6 +25,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda_device', type=int, default=-1, help='cuda_device')
     parser.add_argument('--in_fn', default=None, help='path to input file')
     parser.add_argument('--out_fn', default='elmo_embs.hdf5', help='path to output file')
+    parser.add_argument('--data_size', type=int, default=100000000, help='data size')
 
     argv = parser.parse_args()
 
@@ -42,23 +43,23 @@ if __name__ == "__main__":
     sys.stdout.flush()
     outfh = h5py.File(argv.out_fn, 'w')
     with open(argv.in_fn, 'r') as f:
-        sent_id = 0
+        sent_index = 0
         sys.stdout.write("Sent: ")
         sys.stdout.flush()
 
         for line in f:
             line = line.rstrip()
-
-            if line in outfh.keys():
-                continue
-
             embeddings = ee.embed_sentence(line.split())
-            outfh.create_dataset(name=line, data=embeddings)
+            outfh.create_dataset(name=str(sent_index),
+                                 data=embeddings)
 
-            sent_id += 1
-            if sent_id % 100 == 0:
-                sys.stdout.write("%d " % sent_id)
+            sent_index += 1
+            if sent_index % 100 == 0:
+                sys.stdout.write("%d " % sent_index)
                 sys.stdout.flush()
+
+            if sent_index >= argv.data_size:
+                break
 
     sys.stdout.write("\nPrediction FINISHED\n")
     outfh.flush()
