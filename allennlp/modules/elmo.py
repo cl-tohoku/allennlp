@@ -473,9 +473,9 @@ class _ElmoBiLm(torch.nn.Module):
         mask = token_embedding['mask']
         lstm_outputs = self._elmo_lstm(type_representation, mask)
 
-        # Prepare the output.  The first layer is duplicated.
+        # Prepare the output. The first layer is duplicated.
         output_tensors = [
-                torch.cat([type_representation, type_representation], dim=-1)
+            torch.cat([type_representation, type_representation], dim=-1)
         ]
         for layer_activations in torch.chunk(lstm_outputs, lstm_outputs.size(0), dim=0):
             output_tensors.append(layer_activations.squeeze(0))

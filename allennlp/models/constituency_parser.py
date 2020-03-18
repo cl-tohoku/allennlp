@@ -19,6 +19,7 @@ from allennlp.training.metrics import CategoricalAccuracy
 from allennlp.training.metrics import EvalbBracketingScorer
 from allennlp.common.checks import ConfigurationError
 
+
 class SpanInformation(NamedTuple):
     """
     A helper namedtuple for handling decoding information.
@@ -71,6 +72,7 @@ class SpanConstituencyParser(Model):
     regularizer : ``RegularizerApplicator``, optional (default=``None``)
         If provided, will be used to calculate the regularization penalty during training.
     """
+
     def __init__(self,
                  vocab: Vocabulary,
                  text_field_embedder: TextFieldEmbedder,
@@ -206,11 +208,11 @@ class SpanConstituencyParser(Model):
         class_probabilities = last_dim_softmax(logits, span_mask.unsqueeze(-1))
 
         output_dict = {
-                "class_probabilities": class_probabilities,
-                "spans": spans,
-                "tokens": [meta["tokens"] for meta in metadata],
-                "pos_tags": [meta.get("pos_tags") for meta in metadata],
-                "num_spans": num_spans
+            "class_probabilities": class_probabilities,
+            "spans": spans,
+            "tokens": [meta["tokens"] for meta in metadata],
+            "pos_tags": [meta.get("pos_tags") for meta in metadata],
+            "num_spans": num_spans
         }
         if span_labels is not None:
             loss = sequence_cross_entropy_with_logits(logits, span_labels, span_mask)
@@ -311,7 +313,7 @@ class SpanConstituencyParser(Model):
                 if int(label_index) != no_label_id or (start == 0 and end == len(sentence)):
                     # TODO(Mark): Remove this once pylint sorts out named tuples.
                     # https://github.com/PyCQA/pylint/issues/1418
-                    selected_spans.append(SpanInformation(start=int(start), # pylint: disable=no-value-for-parameter
+                    selected_spans.append(SpanInformation(start=int(start),  # pylint: disable=no-value-for-parameter
                                                           end=int(end),
                                                           label_prob=float(label_prob),
                                                           no_label_prob=float(no_label_prob),
@@ -322,7 +324,7 @@ class SpanConstituencyParser(Model):
             consistent_spans = self.resolve_overlap_conflicts_greedily(selected_spans)
 
             spans_to_labels = {(span.start, span.end):
-                               self.vocab.get_token_from_index(span.label_index, "labels")
+                                   self.vocab.get_token_from_index(span.label_index, "labels")
                                for span in consistent_spans}
             sentence_pos = pos_tags[batch_index] if pos_tags is not None else None
             trees.append(self.construct_tree_from_spans(spans_to_labels, sentence, sentence_pos))
@@ -367,7 +369,7 @@ class SpanConstituencyParser(Model):
             for span1_index, span1 in enumerate(spans):
                 for span2_index, span2 in list(enumerate(spans))[span1_index + 1:]:
                     if (span1.start < span2.start < span1.end < span2.end or
-                                span2.start < span1.start < span2.end < span1.end):
+                            span2.start < span1.start < span2.end < span1.end):
                         # The spans overlap.
                         conflicts_exist = True
                         # What's the more likely situation: that span2 was labeled
@@ -376,7 +378,7 @@ class SpanConstituencyParser(Model):
                         # set of spans to form the tree - in the second case, we delete
                         # span1.
                         if (span1.no_label_prob + span2.label_prob <
-                                    span2.no_label_prob + span1.label_prob):
+                                span2.no_label_prob + span1.label_prob):
                             spans.pop(span2_index)
                         else:
                             spans.pop(span1_index)
@@ -402,6 +404,7 @@ class SpanConstituencyParser(Model):
         -------
         An ``nltk.Tree`` constructed from the labelled spans.
         """
+
         def assemble_subtree(start: int, end: int):
             if (start, end) in spans_to_labels:
                 # Some labels contain nested spans, e.g S-VP.

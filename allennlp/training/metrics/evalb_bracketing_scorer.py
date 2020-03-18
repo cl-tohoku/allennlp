@@ -1,4 +1,3 @@
-
 from typing import List
 import os
 import tempfile
@@ -23,7 +22,7 @@ class EvalbBracketingScorer(Metric):
     will compile.
 
     AllenNLP contains the EVALB software, but you will need to compile it yourself
-    before using it because the binary it generates is system depenedent. To build it,
+    before using it because the binary it generates is system dependent. To build it,
     run ``make`` inside the ``scripts/EVALB`` directory.
 
     Note that this metric reads and writes from disk quite a bit. You probably don't
@@ -39,10 +38,10 @@ class EvalbBracketingScorer(Metric):
         By default, this uses the COLLINS.prm configuration file which comes with EVALB.
         This configuration ignores POS tags and some punctuation labels.
     """
+
     def __init__(self, evalb_directory_path: str, evalb_param_filename: str = "COLLINS.prm") -> None:
         self._evalb_program_path = os.path.join(evalb_directory_path, "evalb")
         self._evalb_param_path = os.path.join(evalb_directory_path, evalb_param_filename)
-
 
         self._header_line = ['ID', 'Len.', 'Stat.', 'Recal', 'Prec.', 'Bracket',
                              'gold', 'test', 'Bracket', 'Words', 'Tags', 'Accracy']
@@ -52,7 +51,7 @@ class EvalbBracketingScorer(Metric):
         self._predicted_brackets = 0.0
 
     @overrides
-    def __call__(self, predicted_trees: List[Tree], gold_trees: List[Tree]) -> None: # type: ignore
+    def __call__(self, predicted_trees: List[Tree], gold_trees: List[Tree]) -> None:  # type: ignore
         """
         Parameters
         ----------
